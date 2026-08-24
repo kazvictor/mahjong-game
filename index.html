@@ -11,9 +11,49 @@
   </head>
   <body>
     <div id="app">
-      <canvas id="game-canvas" width="960" height="640">
-        Your browser does not support the HTML5 Canvas API.
-      </canvas>
+      <div class="game-frame">
+        <canvas id="game-canvas" width="960" height="640">
+          Your browser does not support the HTML5 Canvas API.
+        </canvas>
+
+        <!-- HUD -->
+        <div class="hud is-hidden">
+          <span class="hud__item">Tiles left: <span class="hud__tiles">0</span></span>
+          <span class="hud__item">Time: <span class="hud__timer">0:00</span></span>
+          <button class="hud__btn" data-action="shuffle" title="Shuffle (S)">Shuffle</button>
+          <button class="hud__btn" data-action="restart" title="Restart (R)">Restart</button>
+        </div>
+
+        <!-- Main menu -->
+        <div class="overlay screen-menu">
+          <div class="overlay__card">
+            <h1 class="overlay__title">Mahjong</h1>
+            <p class="overlay__subtitle">Match pairs of tiles to clear the board.</p>
+            <button class="overlay__btn overlay__btn--primary" data-action="start">Start Game</button>
+            <button class="overlay__btn" data-action="shuffle">Shuffle</button>
+            <button class="overlay__btn" data-action="quit">Quit</button>
+            <p class="overlay__hint">Keyboard: S = shuffle · R = restart · ESC = pause</p>
+          </div>
+        </div>
+
+        <!-- Pause -->
+        <div class="overlay screen-pause is-hidden">
+          <div class="overlay__card">
+            <h2 class="overlay__title">Paused</h2>
+            <button class="overlay__btn overlay__btn--primary" data-action="resume">Resume</button>
+            <button class="overlay__btn" data-action="restart">Restart</button>
+          </div>
+        </div>
+
+        <!-- Win / loss -->
+        <div class="overlay screen-end is-hidden">
+          <div class="overlay__card">
+            <h2 class="overlay__title screen-end__title">You Won!</h2>
+            <p class="overlay__subtitle screen-end__subtitle"></p>
+            <button class="overlay__btn overlay__btn--primary" data-action="restart-from-end">Play Again</button>
+          </div>
+        </div>
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

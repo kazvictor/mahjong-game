@@ -1,13 +1,16 @@
 import './style.css';
-import { GameRenderer } from './engine/renderer';
+import { Game } from './Game';
+import { GameState } from './GameState';
+import { UI } from './UI';
 import { GameLoop } from './engine/game-loop';
 
 /**
  * Application entry point.
  *
- * Bootstraps the canvas, wires up the game loop, and kicks off rendering.
- * The update step is intentionally a no-op for now; game state will be driven
- * by it in a later phase.
+ * Bootstraps the canvas, creates the game controller, mounts the UI (which
+ * owns the DOM overlays and canvas rendering), and drives it from the game
+ * loop. The controller's `tick` advances win/loss detection and fade-out
+ * animations; `ui.update()` then reconciles the HUD/overlays and redraws.
  */
 function mount(): void {
   const canvas = document.getElementById('game-canvas');
@@ -15,14 +18,31 @@ function mount(): void {
     throw new Error('Expected an element with id "game-canvas" of type canvas.');
   }
 
-  const renderer = new GameRenderer(canvas);
-  // `noUnusedParameters` ignores params prefixed with `_`, so the placeholder
-  // update callback type-checks cleanly until real game state is wired in.
-  const loop = new GameLoop(
-    (_deltaMs: number) => {
-      /* game state updates will run here */
+  const app = document.getElementById('app');
+  if (!app) {
+    throw new Error('Expected an element with id "app".');
+  }
+
+  const game = new Game();
+  const ui = new UI(canvas, app, game, {
+    onStart: () => ui.startNewGame(),
+    onRestart: () => ui.startNewGame(),
+    onShuffle: () => {
+      if (game.state === GameState.PLAYING) {
+        game.shuffle();
+      }
     },
-    () => renderer.render(),
+  });
+
+  const loop = new GameLoop(
+    (deltaMs: number) => {
+      game.tick(deltaMs);
+      ui.update();
+    },
+    () => {
+      /* ui.update() already redraws; keep the loop's render as a no-op so the
+         controller's tick cadence is preserved. */
+    },
   );
 
   loop.start();

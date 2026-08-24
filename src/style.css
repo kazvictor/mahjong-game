@@ -4,6 +4,8 @@ body {
   padding: 0;
   height: 100%;
   background: #0a251a;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: #e8e4d8;
 }
 
 #app {
@@ -13,9 +15,153 @@ body {
   min-height: 100vh;
 }
 
+/* Frame that holds the canvas + overlays in one relative box. */
+.game-frame {
+  position: relative;
+  width: 960px;
+  max-width: 96vw;
+}
+
 #game-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
   border: 1px solid #2e6b52;
   border-radius: 4px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
   background: #0f3d2e;
+  cursor: pointer;
+}
+
+/* ---------------- HUD ---------------- */
+.hud {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 12px;
+  background: rgba(8, 28, 20, 0.78);
+  border-radius: 6px;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  z-index: 10;
+}
+
+.hud__item {
+  font-weight: 600;
+}
+
+.hud__tiles,
+.hud__timer {
+  color: #ffd34d;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud__btn {
+  margin-left: auto;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e8e4d8;
+  background: #1c5a44;
+  border: 1px solid #2e6b52;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.hud__btn:hover {
+  background: #26684f;
+}
+
+/* ---------------- Overlays ---------------- */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 16, 11, 0.62);
+  border-radius: 4px;
+  z-index: 20;
+}
+
+.overlay__card {
+  text-align: center;
+  padding: 28px 40px;
+  background: rgba(10, 37, 26, 0.94);
+  border: 1px solid #2e6b52;
+  border-radius: 10px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  min-width: 300px;
+}
+
+.overlay__title {
+  margin: 0 0 6px;
+  font-size: 40px;
+  font-weight: 700;
+  color: #ffd34d;
+  letter-spacing: 1px;
+}
+
+.overlay__subtitle {
+  margin: 0 0 20px;
+  font-size: 15px;
+  color: #b9cfc3;
+}
+
+.overlay__btn {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  padding: 11px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #e8e4d8;
+  background: #17382a;
+  border: 1px solid #2e6b52;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.overlay__btn:hover {
+  background: #1f4a38;
+}
+
+.overlay__btn:active {
+  transform: translateY(1px);
+}
+
+.overlay__btn--primary {
+  background: #c98a2b;
+  border-color: #e0a03c;
+  color: #161009;
+}
+
+.overlay__btn--primary:hover {
+  background: #da9a34;
+}
+
+.overlay__hint {
+  margin-top: 16px;
+  font-size: 12px;
+  color: #6f8f80;
+}
+
+/* Win/loss title variants. */
+.screen-end__title.is-win {
+  color: #6ee7a0;
+}
+
+.screen-end__title.is-loss {
+  color: #f5a3a3;
+}
+
+/* Hidden utility. */
+.is-hidden {
+  display: none !important;
 }

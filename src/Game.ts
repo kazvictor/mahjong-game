@@ -238,6 +238,34 @@ export class Game {
     return this.maxX;
   }
 
+  /**
+   * Pause the game (PLAYING → PAUSED). No-op unless currently playing.
+   * Pausing freezes input (the controller rejects `select` while paused).
+   */
+  pause(): void {
+    if (this.machine.current === GameState.PLAYING) {
+      this.transition(GameState.PAUSED);
+    }
+  }
+
+  /**
+   * Resume a paused game (PAUSED → PLAYING). No-op unless currently paused.
+   */
+  resume(): void {
+    if (this.machine.current === GameState.PAUSED) {
+      this.transition(GameState.PLAYING);
+    }
+  }
+
+  /** Toggle between PLAYING and PAUSED. No-op in any other state. */
+  togglePause(): void {
+    if (this.machine.current === GameState.PLAYING) {
+      this.pause();
+    } else if (this.machine.current === GameState.PAUSED) {
+      this.resume();
+    }
+  }
+
   /** Advance fade-out timers and drop removed tiles whose fade elapsed. */
   private advanceFades(deltaMs: number): void {
     if (this.fadeTimers.size === 0) {
