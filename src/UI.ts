@@ -80,6 +80,9 @@ export class UI {
   private startedAt = 0;
   private timerText = '0:00';
   private destroyed = false;
+  /** Position key of the tile currently under the cursor, or null when the
+   * cursor is over no tile. Drives the hover highlight in {@link drawTile}. */
+  private hoverPos: string | null = null;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -152,6 +155,7 @@ export class UI {
     this.game.newGame(tiles, maxX);
     this.startedAt = performance.now();
     this.timerText = '0:00';
+    this.hoverPos = null;
   }
 
   /**
@@ -300,6 +304,7 @@ export class UI {
     const { ctx } = this;
     const { px, py } = screen;
     const selected = this.game.selectedTile?.id === tile.id;
+    const hovered = this.hoverPos === positionKey(tile.x, tile.y, tile.z);
     const color = SUIT_COLORS[tile.suit] ?? '#cccccc';
 
     // Tile face with a subtle 3D edge.
@@ -318,6 +323,13 @@ export class UI {
     if (selected) {
       ctx.strokeStyle = '#ffe14d';
       ctx.lineWidth = 3;
+      ctx.strokeRect(px + 1, py + 1, TILE_W - 2, TILE_H - 2);
+    } else if (hovered && free) {
+      // Hovered: soft cyan outline so the player can see the tile under the
+      // cursor before clicking. Only free tiles are clickable, so only they
+      // get the affordance.
+      ctx.strokeStyle = '#7dd3fc';
+      ctx.lineWidth = 2;
       ctx.strokeRect(px + 1, py + 1, TILE_W - 2, TILE_H - 2);
     }
 
@@ -368,11 +380,15 @@ export class UI {
     }
   }
 
-  private handleHover(x: number | null, _y: number | null, _z: number | null): void {
-    // Hover feedback is visual (highlight on hover). The renderer draws the
-    // hovered tile via the hit area; no extra state is required beyond a
-    // redraw, which `update()` triggers each frame.
-    void x;
+  private handleHover(x: number | null, y: number | null, z: number | null): void {
+    // Record the hovered tile so the renderer can highlight it. When the
+    // cursor leaves any tile, x/y/z are null and the highlight clears. Hover
+    // is only meaningful while a game is live; otherwise force-clear it.
+    if (!this.isInGame() || x === null || y === null || z === null) {
+      this.hoverPos = null;
+      return;
+    }
+    this.hoverPos = positionKey(x, y, z);
   }
 }
 
