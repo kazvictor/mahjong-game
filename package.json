@@ -1,0 +1,20 @@
+{
+  "name": "mahjong-game",
+  "version": "0.1.0",
+  "description": "A browser-based Mahjong game built with vanilla TypeScript and the Canvas API (no framework dependencies).",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vite": "^5.4.8"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
