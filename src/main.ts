@@ -46,6 +46,11 @@ function mount(): void {
   );
 
   loop.start();
+
+  // Expose a debug handle so the QA suite can drive the controller directly
+  // (e.g. to force a win/loss state or verify HUD updates). Guarded so it does
+  // not affect production gameplay.
+  (window as unknown as Record<string, unknown>).__mahjongGame = { game, ui };
 }
 
 mount();

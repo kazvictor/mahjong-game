@@ -47,10 +47,14 @@ export interface InputCallbacks {
 export type KeyBinding = (event: KeyboardEvent, isPlaying: boolean) => InputAction | null;
 
 /**
- * Pick the top-most (highest z) tile under a screen point, or null when no
- * tile rectangle contains the point. When several tiles overlap the same
- * point, the highest `z` (and, as a tiebreak, the one declared last) wins —
- * matching how a top-of-stack tile should be clickable.
+ * Pick the tile a screen point lands on, or null when no tile rectangle
+ * contains the point.
+ *
+ * When several tile rectangles contain the same point (typical for stacked or
+ * partially overlapping isometric tiles), the tile whose centre is nearest the
+ * click point is chosen, with a higher `z` layer breaking ties. This matches
+ * the visually-topmost tile under the cursor — i.e. the tile the user can
+ * actually see and click.
  */
 export function pickTileAt(
   mouseX: number,
@@ -58,6 +62,8 @@ export function pickTileAt(
   areas: readonly TileHitArea[],
 ): TileHitArea | null {
   let best: TileHitArea | null = null;
+  let bestDist = Infinity;
+
   for (const area of areas) {
     if (mouseX < area.px || mouseX > area.px + area.w) {
       continue;
@@ -65,8 +71,17 @@ export function pickTileAt(
     if (mouseY < area.py || mouseY > area.py + area.h) {
       continue;
     }
-    if (best === null || area.z >= best.z) {
+    // Distance from the click point to this tile's centre.
+    const cx = area.px + area.w / 2;
+    const cy = area.py + area.h / 2;
+    const dist = (mouseX - cx) * (mouseX - cx) + (mouseY - cy) * (mouseY - cy);
+    const better =
+      best === null ||
+      dist < bestDist ||
+      (dist === bestDist && area.z >= best.z);
+    if (better) {
       best = area;
+      bestDist = dist;
     }
   }
   return best;
@@ -151,7 +166,7 @@ export class InputHandler {
   }
 
   private handleMouseMove(event: MouseEvent): void {
-    const hit = pickTileAt(event.clientX, event.clientY, this.areas);
+    const hit = pickTileAt(this.toCanvasX(event), this.toCanvasY(event), this.areas);
     const id = hit?.id ?? null;
     if (id === this.hoverId) {
       return; // no change
@@ -168,11 +183,29 @@ export class InputHandler {
     if (event.button !== 0) {
       return; // left click only
     }
-    const hit = pickTileAt(event.clientX, event.clientY, this.areas);
+    const hit = pickTileAt(this.toCanvasX(event), this.toCanvasY(event), this.areas);
     if (!hit) {
       return;
     }
     this.onAction({ kind: 'tile-click', x: hit.x, y: hit.y, z: hit.z });
+  }
+
+  /**
+   * Convert a mouse event's viewport-space client coordinates into canvas
+   * backing-store pixel coordinates. This accounts for:
+   *  - The canvas's offset within the page (`getBoundingClientRect`).
+   *  - Any CSS scaling vs. the backing store (`canvas.width / rect.width`).
+   * Hit areas are stored in canvas pixels, so this keeps clicks aligned with
+   * the rendered tiles regardless of layout or devicePixelRatio.
+   */
+  private toCanvasX(event: MouseEvent): number {
+    const rect = this.canvas.getBoundingClientRect();
+    return ((event.clientX - rect.left) / rect.width) * this.canvas.width;
+  }
+
+  private toCanvasY(event: MouseEvent): number {
+    const rect = this.canvas.getBoundingClientRect();
+    return ((event.clientY - rect.top) / rect.height) * this.canvas.height;
   }
 
   private handleKeyDown(event: KeyboardEvent): void {

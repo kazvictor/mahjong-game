@@ -112,7 +112,9 @@ export class Game {
     this.selected = null;
     this.removedTiles_ = [];
     this.fadeTimers.clear();
-    this.transition(GameState.PLAYING);
+    // Use reset (not transition) so a fresh game can start from any state,
+    // including after a WON/LOST restart.
+    this.machine.reset(GameState.PLAYING);
   }
 
   /**

@@ -124,7 +124,7 @@ export class UI {
     this.input = new InputHandler(canvas, {
       onAction: (action) => this.handleAction(action),
       onHover: (x, y, z) => this.handleHover(x, y, z),
-    }, { getIsPlaying: () => this.game.state === GameState.PLAYING });
+    }, { getIsPlaying: () => this.isInGame() });
 
     // Initial state is the menu; the board is built on Start.
     this.render();
@@ -152,6 +152,15 @@ export class UI {
     this.game.newGame(tiles, maxX);
     this.startedAt = performance.now();
     this.timerText = '0:00';
+  }
+
+  /**
+   * Return the on-screen center (canvas-relative CSS pixels) of a tile at the
+   * given board position. Useful for hit-testing/tests and QA tooling.
+   */
+  screenCenterOf(x: number, y: number, z: number): { cx: number; cy: number } {
+    const { px, py } = this.toScreen(x, y, z);
+    return { cx: px + TILE_W / 2, cy: py + TILE_H / 2 };
   }
 
   /** Route an input action to the right controller call. */

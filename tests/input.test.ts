@@ -34,6 +34,16 @@ describe('pickTileAt', () => {
     expect(pickTileAt(30, 30, areas)?.id).toBe(2);
   });
 
+  it('prefers the tile whose centre is nearest when rects overlap', () => {
+    // id 1 (0,0) and id 2 (0,1) overlap; the point is closer to id 2.
+    const overlap = [
+      area({ id: 1, x: 0, y: 0, z: 0, px: 10, py: 10 }),
+      area({ id: 2, x: 0, y: 1, z: 1, px: 10, py: 40 }),
+    ];
+    // Point (30, 60): id2 centre (38,74) is nearer than id1 centre (38,44).
+    expect(pickTileAt(30, 60, overlap)?.id).toBe(2);
+  });
+
   it('returns the only tile that contains the point', () => {
     expect(pickTileAt(210, 20, areas)?.id).toBe(3);
   });

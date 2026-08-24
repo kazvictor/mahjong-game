@@ -22,7 +22,8 @@ export enum GameState {
   LOST = 'LOST',
 }
 
-/** States that are terminal — once reached, no further transition is allowed. */
+/** Terminal end-states. The transition table forbids leaving them; to start a
+ * fresh game call {@link GameStateMachine.reset} instead. */
 const TERMINAL_STATES: ReadonlySet<GameState> = new Set([GameState.WON, GameState.LOST]);
 
 /** States that are "in a live game" (input is meaningful here). */
@@ -90,6 +91,16 @@ export class GameStateMachine {
           `Allowed from ${this.state}: ${[...allowed].join(', ') || '(none)'}.`,
       );
     }
+    this.state = next;
+    return this.state;
+  }
+
+  /**
+   * Force a fresh start regardless of the current state (e.g. a new game from
+   * the menu, or a restart after WON/LOST). This is the only way to leave a
+   * terminal state, since the transition table intentionally forbids it.
+   */
+  reset(next: GameState = GameState.PLAYING): GameState {
     this.state = next;
     return this.state;
   }
